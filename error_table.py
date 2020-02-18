@@ -16,6 +16,7 @@ import pandas as pd
 import string
 import prettytable as pt
 import argparse
+import pprint as pp
 
 parser = argparse.ArgumentParser()
 parser.add_argument("original")
@@ -108,6 +109,11 @@ test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
 main(args.original, args.converted, t)
 print(t)
 
+print(t.columns)
+print(t.index)
+
+d = {c: dict(t.loc[c][t.loc[c] != 0]) for c in t.index if t.loc[c].sum() > 0}
+pp.pprint(d)
 
 # ### Run test
 

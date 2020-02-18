@@ -1,0 +1,198 @@
+{' ': a      1
+h      1
+p      1
+s      2
+t      1
+.      1
+     555
+Name:  , dtype: int64,
+ '!': !    2
+Name: !, dtype: int64,
+ '"': Series([], Name: ", dtype: int64),
+ '#': Series([], Name: #, dtype: int64),
+ '$': Series([], Name: $, dtype: int64),
+ '%': Series([], Name: %, dtype: int64),
+ '&': Series([], Name: &, dtype: int64),
+ "'": Series([], Name: ', dtype: int64),
+ '(': Series([], Name: (, dtype: int64),
+ ')': Series([], Name: ), dtype: int64),
+ '*': Series([], Name: *, dtype: int64),
+ '+': Series([], Name: +, dtype: int64),
+ ',': ,    40
+.     2
+Name: ,, dtype: int64,
+ '-': -    4
+Name: -, dtype: int64,
+ '.': e     1
+.    30
+Name: ., dtype: int64,
+ '/': Series([], Name: /, dtype: int64),
+ '0': Series([], Name: 0, dtype: int64),
+ '1': 1    1
+Name: 1, dtype: int64,
+ '2': Series([], Name: 2, dtype: int64),
+ '3': Series([], Name: 3, dtype: int64),
+ '4': Series([], Name: 4, dtype: int64),
+ '5': Series([], Name: 5, dtype: int64),
+ '6': Series([], Name: 6, dtype: int64),
+ '7': Series([], Name: 7, dtype: int64),
+ '8': Series([], Name: 8, dtype: int64),
+ '9': Series([], Name: 9, dtype: int64),
+ ':': Series([], Name: :, dtype: int64),
+ ';': ;    10
+Name: ;, dtype: int64,
+ '<': Series([], Name: <, dtype: int64),
+ '=': Series([], Name: =, dtype: int64),
+ '>': Series([], Name: >, dtype: int64),
+ '?': ?    5
+Name: ?, dtype: int64,
+ '@': Series([], Name: @, dtype: int64),
+ 'A': A    4
+Name: A, dtype: int64,
+ 'B': u    1
+B    2
+Name: B, dtype: int64,
+ 'C': C    7
+Name: C, dtype: int64,
+ 'D': Series([], Name: D, dtype: int64),
+ 'E': E    1
+Name: E, dtype: int64,
+ 'F': Series([], Name: F, dtype: int64),
+ 'G': G    1
+Name: G, dtype: int64,
+ 'H': d    1
+H    3
+Name: H, dtype: int64,
+ 'I': I    15
+Name: I, dtype: int64,
+ 'J': Series([], Name: J, dtype: int64),
+ 'K': Series([], Name: K, dtype: int64),
+ 'L': l    1
+L    3
+Name: L, dtype: int64,
+ 'M': M    1
+Name: M, dtype: int64,
+ 'N': N    3
+Name: N, dtype: int64,
+ 'None': e    1
+h    2
+n    1
+r    2
+s    2
+t    1
+Name: None, dtype: int64,
+ 'O': O    1
+Name: O, dtype: int64,
+ 'P': P    2
+Name: P, dtype: int64,
+ 'Q': Series([], Name: Q, dtype: int64),
+ 'R': R    2
+Name: R, dtype: int64,
+ 'S': S    7
+Name: S, dtype: int64,
+ 'T': T    8
+Name: T, dtype: int64,
+ 'U': Series([], Name: U, dtype: int64),
+ 'V': Series([], Name: V, dtype: int64),
+ 'W': W    2
+Name: W, dtype: int64,
+ 'X': Series([], Name: X, dtype: int64),
+ 'Y': Y    2
+Name: Y, dtype: int64,
+ 'Z': Series([], Name: Z, dtype: int64),
+ '[': Series([], Name: [, dtype: int64),
+ '\\': Series([], Name: \, dtype: int64),
+ ']': Series([], Name: ], dtype: int64),
+ '^': Series([], Name: ^, dtype: int64),
+ '_': Series([], Name: _, dtype: int64),
+ '`': Series([], Name: `, dtype: int64),
+ 'a': a    196
+i      1
+o      1
+Name: a, dtype: int64,
+ 'b': b    34
+Name: b, dtype: int64,
+ 'c': c    48
+Name: c, dtype: int64,
+ 'd': d    91
+i     1
+t     1
+Name: d, dtype: int64,
+ 'e': e    367
+i      1
+o      2
+       1
+Name: e, dtype: int64,
+ 'f': f    62
+Name: f, dtype: int64,
+ 'g': g    58
+Name: g, dtype: int64,
+ 'h': e      1
+h    151
+i      1
+Name: h, dtype: int64,
+ 'i': a      1
+i    174
+l      2
+u      1
+.      1
+       1
+Name: i, dtype: int64,
+ 'j': j    1
+Name: j, dtype: int64,
+ 'k': k    16
+Name: k, dtype: int64,
+ 'l': l    125
+Name: l, dtype: int64,
+ 'm': d     1
+m    76
+Name: m, dtype: int64,
+ 'n': n    180
+r      1
+       1
+Name: n, dtype: int64,
+ 'o': i      1
+o    191
+r      1
+Name: o, dtype: int64,
+ 'p': p    53
+y     1
+Name: p, dtype: int64,
+ 'q': q    2
+Name: q, dtype: int64,
+ 'r': r    162
+s      1
+t      1
+,      1
+       1
+Name: r, dtype: int64,
+ 's': n      1
+s    180
+       2
+Name: s, dtype: int64,
+ 't': a      1
+m      1
+t    247
+H      1
+       1
+Name: t, dtype: int64,
+ 'u': e     1
+t     1
+u    73
+Name: u, dtype: int64,
+ 'v': v    28
+Name: v, dtype: int64,
+ 'w': w    52
+W     3
+Name: w, dtype: int64,
+ 'x': x    4
+Name: x, dtype: int64,
+ 'y': d     1
+y    61
+Name: y, dtype: int64,
+ 'z': z    4
+Name: z, dtype: int64,
+ '{': Series([], Name: {, dtype: int64),
+ '|': Series([], Name: |, dtype: int64),
+ '}': Series([], Name: }, dtype: int64),
+ '~': Series([], Name: ~, dtype: int64)}
