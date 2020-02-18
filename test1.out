@@ -1,0 +1,46 @@
+use  text_orig.txt as original and test_conv.txt as converted
+i:  0 , j: 0
+a -> a
+i:  1 , j: 1
+b -> b
+i:  2 , j: 2
+c -> d
+2 same char at 3
+i:  4 , j: 3
+e -> e
+i:  5 , j: 4
+  ->  
+i:  6 , j: 5
+c -> c
+i:  7 , j: 6
+b -> a
+6 same char at 8
+i:  9 , j: 7
+  ->  
+i:  10 , j: 8
+a -> a
+i:  11 , j: 9
+b -> d
+9 same char at 13
+i:  14 , j: 10
+e -> e
+i:  15 , j: 11
+  ->  
+i:  16 , j: 12
+a -> a
+i:  17 , j: 13
+b -> b
+i:  18 , j: 14
+c ->  
+14 same char at 18
+'c'   ' '
+i:  19 , j: 15
+d -> e
+15 same char at 20
+   a  b  c  d  e     None
+a  4  0  0  0  0  0     0
+b  0  2  0  0  0  0     2
+c  0  0  1  0  0  1     2
+d  0  0  0  2  0  0     1
+e  0  0  0  0  3  0     0
+   0  0  0  0  0  3     0
