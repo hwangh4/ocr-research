@@ -14,7 +14,7 @@
 import numpy as np
 import pandas as pd
 import string
-import prettytable as pt
+# import prettytable as pt
 import argparse
 import pprint as pp
 
@@ -32,16 +32,13 @@ args = parser.parse_args()
 # 1. Splice all possible ascii characters
 all_ascii = string.printable
 
-# Create column names without null values
-original_ascii = list(all_ascii[:-5])
-
 # Create row names with None value for counting up deletions
-converted_ascii = list(all_ascii[:-5])
-converted_ascii.append("None")
+letters = list(all_ascii[:-5])
+letters.append("None")
 
 
 # 2. Generate table
-t = pd.DataFrame(0, original_ascii, converted_ascii)
+t = pd.DataFrame(0, letters, letters)
 # t.tail()
 
 
@@ -57,14 +54,22 @@ def main(orig_name, conv_name, t):
     i = 0
 
     for j in range(len(conv)):
-        if orig[i] == "H":
-            print('i: ', i, orig[i], ", j:" , j, conv[j])
-        #print(orig[i], '->', conv[j])
-
+        try:
+            if orig[i] == "H":
+                print("We have H.  conv, orig (pos, char): ",  j, conv[j], "   ", i, orig[i])
+        except:
+            pass
+        print("No H here.  conv, orig (pos, char): ",  j, conv[j], "   ", i, orig[i])
         if (i < len(orig) and orig[i] != conv[j]):
+            print("something wrong.  look around.")
             curr = i
             i = same_char_at_index(i, j, orig, conv)
-
+            print(i)
+            if i is None:
+                t.loc["None", conv[j]] += 1
+                i = curr
+                continue
+            print("Wait a sec:  conv, orig (pos, char): ",  j, conv[j], "   ", i, orig[i])
             if orig[i] == "H":
                 print(conv[j-5:j+5])
 
@@ -97,6 +102,7 @@ def same_char_at_index(i, j, orig, conv):
     find if there is a similar character (as in 'orig'
     at position i) in 'conv' at position [j ... j+3]
     """
+    print("  check for j, i", j, i)
     count = 0  # position relative to j
     index = i  # copy of i for not to overwrite i
     while (count < 3 and index < len(orig)):
@@ -105,7 +111,7 @@ def same_char_at_index(i, j, orig, conv):
         else:
             index += 1
             count += 1
-    return(i)
+    return None
 
 test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
                    ("a", "b", "c", "d", "e", " ", "None"))
@@ -116,7 +122,7 @@ main(args.original, args.converted, t)
 # print(t.index)
 
 d = {c: dict(t.loc[c][t.loc[c] != 0]) for c in t.index if t.loc[c].sum() > 0}
-# pp.pprint(d)
+pp.pprint(d)
 
 # ### Run test
 
