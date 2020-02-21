@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+tests="test1 test2"
+for test in $tests; do
+    echo "testing $test"
+    ./error_table.py unittest/${test}-orig.txt unittest/${test}-conv.txt >${test}.out
+    diff ${test}.out unittest/${test}-reference.out
+done
