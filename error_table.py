@@ -57,13 +57,16 @@ def main(orig_name, conv_name, t):
     i = 0
 
     for j in range(len(conv)):
-        #print('i: ', i, ", j:", j)
+        if orig[i] == "H":
+            print('i: ', i, orig[i], ", j:" , j, conv[j])
         #print(orig[i], '->', conv[j])
 
         if (i < len(orig) and orig[i] != conv[j]):
             curr = i
             i = same_char_at_index(i, j, orig, conv)
-            # print(j, "same char at", i)
+
+            if orig[i] == "H":
+                print(conv[j-5:j+5])
 
             if i > curr: # char was deleted
                 while i > curr:
@@ -107,13 +110,13 @@ def same_char_at_index(i, j, orig, conv):
 test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
                    ("a", "b", "c", "d", "e", " ", "None"))
 main(args.original, args.converted, t)
-print(t)
-
-print(t.columns)
-print(t.index)
+# print(t)
+#
+# print(t.columns)
+# print(t.index)
 
 d = {c: dict(t.loc[c][t.loc[c] != 0]) for c in t.index if t.loc[c].sum() > 0}
-pp.pprint(d)
+# pp.pprint(d)
 
 # ### Run test
 
