@@ -54,7 +54,8 @@ def main(orig_name, conv_name, t):
             i = same_char_at_index(i, j, orig, conv)
 
             if i is None:
-                t.loc["None", conv[j]] += 1
+                if conv[j] in t.columns:
+                    t.loc["None", conv[j]] += 1
                 i = curr
                 continue
             if orig[i] == "H":
