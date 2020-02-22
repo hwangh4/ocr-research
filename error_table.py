@@ -10,11 +10,11 @@
 #
 # January 20th, 2020
 
-# Import libraries
+###---------------------- Import libraries ----------------------###
 import numpy as np
 import pandas as pd
 import string
-# import prettytable as pt
+import prettytable as pt
 import argparse
 import pprint as pp
 
@@ -22,10 +22,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("original")
 parser.add_argument("converted")
 args = parser.parse_args()
-#print("use ", args.original, "as original and", args.converted, "as converted")
 
 
-### Generate Table ###
+###----------------------- Generate Table -----------------------###
 
 # row - original
 # column - converted
@@ -39,37 +38,25 @@ letters.append("None")
 
 # 2. Generate table
 t = pd.DataFrame(0, letters, letters)
-# t.tail()
 
-
-### Create Unigram Chart from Original and Converted File (main) ###
+###------ Create Unigram Chart from Original and Converted File (main) ------###
 
 # We assume the length for conv and orig are equal at this point
 def main(orig_name, conv_name, t):
     orig = open(orig_name, "r").read()
     conv = open(conv_name, "r").read()
-#     orig = "abcde"
-#     conv = "ab e"
 
     i = 0
 
     for j in range(len(conv)):
-        try:
-            if orig[i] == "H":
-                print("We have H.  conv, orig (pos, char): ",  j, conv[j], "   ", i, orig[i])
-        except:
-            pass
-        print("No H here.  conv, orig (pos, char): ",  j, conv[j], "   ", i, orig[i])
         if (i < len(orig) and orig[i] != conv[j]):
-            print("something wrong.  look around.")
             curr = i
             i = same_char_at_index(i, j, orig, conv)
-            print(i)
+
             if i is None:
                 t.loc["None", conv[j]] += 1
                 i = curr
                 continue
-            print("Wait a sec:  conv, orig (pos, char): ",  j, conv[j], "   ", i, orig[i])
             if orig[i] == "H":
                 print(conv[j-5:j+5])
 
@@ -86,7 +73,6 @@ def main(orig_name, conv_name, t):
                     pass
             else:
                 try:
-                    #print("'" + orig[i] + "'   " + "'" + conv[j] + "'")
                     t.loc[orig[i], conv[j]] += 1
                 except:
                     pass
@@ -102,7 +88,6 @@ def same_char_at_index(i, j, orig, conv):
     find if there is a similar character (as in 'orig'
     at position i) in 'conv' at position [j ... j+3]
     """
-    print("  check for j, i", j, i)
     count = 0  # position relative to j
     index = i  # copy of i for not to overwrite i
     while (count < 3 and index < len(orig)):
@@ -116,10 +101,6 @@ def same_char_at_index(i, j, orig, conv):
 test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
                    ("a", "b", "c", "d", "e", " ", "None"))
 main(args.original, args.converted, t)
-# print(t)
-#
-# print(t.columns)
-# print(t.index)
 
 d = {c: dict(t.loc[c][t.loc[c] != 0]) for c in t.index if t.loc[c].sum() > 0}
 pp.pprint(d)
