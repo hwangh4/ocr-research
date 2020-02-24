@@ -6,7 +6,7 @@
 #
 # Author: Scarlett Heeyeon Hwang
 #
-# (currently handles only substitution and deletion)
+# (VER 3 - currently handles insertions, substitutions, and deletions)
 #
 # January 20th, 2020
 
@@ -18,6 +18,7 @@ import prettytable as pt
 import argparse
 import pprint as pp
 
+## parameterize the file names for command line inputs
 parser = argparse.ArgumentParser()
 parser.add_argument("original")
 parser.add_argument("converted")
@@ -25,65 +26,87 @@ args = parser.parse_args()
 
 
 ###----------------------- Generate Table -----------------------###
+## Generate the "big" table with all possible English ascii letters that could
+## be read in by tesseract
+## row - original / column - converted
 
-# row - original
-# column - converted
-# 1. Splice all possible ascii characters
+## 1. Splice all possible ascii characters
 all_ascii = string.printable
 
-# Create row names with None value for counting up deletions
+## 2. Create row names with "Del" value for counting up insertions and deletions
 letters = list(all_ascii[:-5])
-letters.append("None")
+letters.append("Del")
 
 
-# 2. Generate table
+## 3. Generate table
 t = pd.DataFrame(0, letters, letters)
 
-###------ Create Unigram Chart from Original and Converted File (main) ------###
 
-# We assume the length for conv and orig are equal at this point
+###------ Create Unigram Chart from Original and Converted File (main) ------###
+## We assume the length for conv and orig are equal at this point
+## Params: orig_name(file) - original file of text
+##         conv_name(file) - converted file of text after OCR (contains errors)
+
 def main(orig_name, conv_name, t):
     orig = open(orig_name, "r").read()
     conv = open(conv_name, "r").read()
 
-    i = 0
+    i = 0   # set initial index for orig
 
+    # compare orig in function of conv (REVISE)
     for j in range(len(conv)):
+        # if current char of orig and conv are not equal
         if (i < len(orig) and orig[i] != conv[j]):
-            curr = i
+            curr = i    # temp to prevent overwriting current index
             i = same_char_at_index(i, j, orig, conv)
 
+            # 1. if *insertion* occured so returned value is None (REVISE)
             if i is None:
                 if conv[j] in t.columns:
-                    t.loc["None", conv[j]] += 1
+                    t.loc["Del", conv[j]] += 1
                 i = curr
                 continue
-            if orig[i] == "H":
-                print(conv[j-5:j+5])
 
-            if i > curr: # char was deleted
+            # 2. if *deletion* occured
+            if i > curr:
+                # log every deleted letters in a row
                 while i > curr:
+                    # count up for [orig, Del] if our ascii letters list
+                    #  contains orig char
                     try:
-                        t.loc[orig[curr], "None"] += 1
+                        t.loc[orig[curr], "Del"] += 1
                     except:
                         pass
                     curr += 1
-                try:
-                    t.loc[orig[i], conv[j]] += 1
-                except:
-                    pass
+
+                ## DO WE NEED THIS??????
+                # try:
+                #     t.loc[orig[i], conv[j]] += 1
+                # except:
+                #     pass
+
+            # 3. if *substitution* occured
             else:
                 try:
                     t.loc[orig[i], conv[j]] += 1
                 except:
                     pass
+
+        # if current char of orig and conv are equal
         else:
             try:
                 t.loc[orig[i], conv[j]] += 1
+            # pass if the char is not in our ascii letters list
             except:
                 pass
+
+        # increment orig's index
         i += 1
 
+
+###------------- Move index of original text to correct position ------------###
+## Return (int): updated index if deletion occured
+##               None if substitution occured
 def same_char_at_index(i, j, orig, conv):
     """
     find if there is a similar character (as in 'orig'
@@ -99,13 +122,17 @@ def same_char_at_index(i, j, orig, conv):
             count += 1
     return None
 
+
+###--------------------------- Run unit test --------------------------------###
 test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
                    ("a", "b", "c", "d", "e", " ", "None"))
+
+###-------------------------- Run actual test -------------------------------###
 main(args.original, args.converted, t)
 
+
+###--------------------------- Run unit test --------------------------------###
 d = {c: dict(t.loc[c][t.loc[c] != 0]) for c in t.index if t.loc[c].sum() > 0}
 pp.pprint(d)
 
-# ### Run test
-
-#main("moby_dick.txt", "moby_dick-converted.txt", t)
+count = 0
