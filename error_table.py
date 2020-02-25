@@ -120,6 +120,14 @@ def same_char_at_index(i, j, orig, conv):
         else:
             index += 1
             count += 1
+    # if the next letters match (substitution)
+    if i + 1 > len(orig):
+        if orig[i + 1] == conv[j + 1]:
+            return i
+    else: # if this is last letter
+        return i
+
+    # nothing matched (insertion)
     return None
 
 
@@ -135,4 +143,4 @@ main(args.original, args.converted, t)
 d = {c: dict(t.loc[c][t.loc[c] != 0]) for c in t.index if t.loc[c].sum() > 0}
 pp.pprint(d)
 
-count = 0
+#count = 0
