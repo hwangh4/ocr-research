@@ -65,7 +65,7 @@ def main(orig_name, conv_name, t):
     # compare orig in function of conv (REVISE)
     for j in range(len(conv)):
         # if current char of orig and conv are not equal
-n
+
         if (i < len(orig) and orig[i] != conv[j]):
             curr = i    # temp to prevent overwriting current index
 
