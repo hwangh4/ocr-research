@@ -10,11 +10,20 @@
 #
 # January 20th, 2020
 
+def module_exists(module_name):
+    try:
+        __import__(module_name)
+    except ImportError:
+        return False
+    else:
+        return True
+
 ###---------------------- Import libraries ----------------------###
 import numpy as np
 import pandas as pd
 import string
-import prettytable as pt
+if module_exists("prettytable"):
+    import prettytable as pt
 import argparse
 import pprint as pp
 
@@ -56,7 +65,7 @@ def main(orig_name, conv_name, t):
     # compare orig in function of conv (REVISE)
     for j in range(len(conv)):
         # if current char of orig and conv are not equal
-
+n
         if (i < len(orig) and orig[i] != conv[j]):
             curr = i    # temp to prevent overwriting current index
 
