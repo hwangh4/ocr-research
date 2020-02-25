@@ -131,7 +131,7 @@ def same_char_at_index(i, j, orig, conv):
 
     # nothing matched (insertion)
     return None
-    
+
 
 ###--------------------------- Run unit test --------------------------------###
 test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
