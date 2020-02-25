@@ -56,8 +56,10 @@ def main(orig_name, conv_name, t):
     # compare orig in function of conv (REVISE)
     for j in range(len(conv)):
         # if current char of orig and conv are not equal
+
         if (i < len(orig) and orig[i] != conv[j]):
             curr = i    # temp to prevent overwriting current index
+
             i = same_char_at_index(i, j, orig, conv)
 
             # 1. if *insertion* occured so returned value is None (REVISE)
@@ -80,10 +82,10 @@ def main(orig_name, conv_name, t):
                     curr += 1
 
                 ## DO WE NEED THIS??????
-                # try:
-                #     t.loc[orig[i], conv[j]] += 1
-                # except:
-                #     pass
+                try:
+                    t.loc[orig[i], conv[j]] += 1
+                except:
+                    pass
 
             # 3. if *substitution* occured
             else:
@@ -121,7 +123,7 @@ def same_char_at_index(i, j, orig, conv):
             index += 1
             count += 1
     # if the next letters match (substitution)
-    if i + 1 > len(orig):
+    if i + 1 < len(orig) and j + 1 < len(conv):
         if orig[i + 1] == conv[j + 1]:
             return i
     else: # if this is last letter
@@ -129,7 +131,7 @@ def same_char_at_index(i, j, orig, conv):
 
     # nothing matched (insertion)
     return None
-
+    
 
 ###--------------------------- Run unit test --------------------------------###
 test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
