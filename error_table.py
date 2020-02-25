@@ -130,7 +130,7 @@ def same_char_at_index(i, j, orig, conv):
             index += 1
             count += 1
     # if the next letters match (substitution)
-    if i + 1 > len(orig):
+    if i + 1 < len(orig):
         if orig[i + 1] == conv[j + 1]:
             return i
     else: # if this is last letter

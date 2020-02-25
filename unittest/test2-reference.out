@@ -1,16 +1,1 @@
-No H here.  conv, orig (pos, char):  0 e     0 e
-No H here.  conv, orig (pos, char):  1 v     1 v
-No H here.  conv, orig (pos, char):  2 e     2 e
-No H here.  conv, orig (pos, char):  3 r     3 r
-No H here.  conv, orig (pos, char):  4       4 .
-something wrong.  look around.
-  check for j, i 4 4
-None
-No H here.  conv, orig (pos, char):  5 .     4 .
-No H here.  conv, orig (pos, char):  6 
-     5 
-
-No H here.  conv, orig (pos, char):  7 
-     6 
-
-{'.': {'.': 1}, 'None': {' ': 1}, 'e': {'e': 2}, 'r': {'r': 1}, 'v': {'v': 1}}
+{'.': {'.': 1}, 'Del': {' ': 1}, 'e': {'e': 2}, 'r': {'r': 1}, 'v': {'v': 1}}
