@@ -1,42 +1,6 @@
-No H here.  conv, orig (pos, char):  0 a     0 a
-No H here.  conv, orig (pos, char):  1 b     1 b
-No H here.  conv, orig (pos, char):  2 d     2 c
-something wrong.  look around.
-  check for j, i 2 2
-3
-Wait a sec:  conv, orig (pos, char):  2 d     3 d
-No H here.  conv, orig (pos, char):  3 e     4 e
-No H here.  conv, orig (pos, char):  4       5  
-No H here.  conv, orig (pos, char):  5 c     6 c
-No H here.  conv, orig (pos, char):  6 a     7 b
-something wrong.  look around.
-  check for j, i 6 7
-8
-Wait a sec:  conv, orig (pos, char):  6 a     8 a
-No H here.  conv, orig (pos, char):  7       9  
-No H here.  conv, orig (pos, char):  8 a     10 a
-No H here.  conv, orig (pos, char):  9 d     11 b
-something wrong.  look around.
-  check for j, i 9 11
-13
-Wait a sec:  conv, orig (pos, char):  9 d     13 d
-No H here.  conv, orig (pos, char):  10 e     14 e
-No H here.  conv, orig (pos, char):  11       15  
-No H here.  conv, orig (pos, char):  12 a     16 a
-No H here.  conv, orig (pos, char):  13 b     17 b
-No H here.  conv, orig (pos, char):  14       18 c
-something wrong.  look around.
-  check for j, i 14 18
-None
-No H here.  conv, orig (pos, char):  15 e     18 c
-something wrong.  look around.
-  check for j, i 15 18
-20
-Wait a sec:  conv, orig (pos, char):  15 e     20 e
 {' ': {' ': 3},
- 'None': {' ': 1},
  'a': {'a': 4},
- 'b': {'None': 2, 'b': 2},
- 'c': {'None': 3, 'c': 1},
- 'd': {'None': 1, 'd': 2},
+ 'b': {'Del': 2, 'b': 2},
+ 'c': {' ': 1, 'Del': 2, 'c': 1},
+ 'd': {'Del': 1, 'd': 2},
  'e': {'e': 3}}

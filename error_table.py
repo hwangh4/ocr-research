@@ -10,11 +10,20 @@
 #
 # January 20th, 2020
 
+def module_exists(module_name):
+    try:
+        __import__(module_name)
+    except ImportError:
+        return False
+    else:
+        return True
+
 ###---------------------- Import libraries ----------------------###
 import numpy as np
 import pandas as pd
 import string
-import prettytable as pt
+if module_exists("prettytable"):
+    import prettytable as pt
 import argparse
 import pprint as pp
 
