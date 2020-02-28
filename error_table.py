@@ -153,5 +153,3 @@ main(args.original, args.converted, t)
 ###--------------------------- Run unit test --------------------------------###
 d = {c: dict(t.loc[c][t.loc[c] != 0]) for c in t.index if t.loc[c].sum() > 0}
 pp.pprint(d)
-
-#count = 0
