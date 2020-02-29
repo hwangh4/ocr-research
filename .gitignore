@@ -1,5 +1,6 @@
 # backup files
 *~
+.ipynb_checkpoints
 
 # temporary files
 *.out
