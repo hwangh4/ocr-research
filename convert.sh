@@ -13,30 +13,41 @@ fi
 
 LINES=50  # lines per page
 
-case $1 in
-    -i|--input)
-	FILE="$2"
-	shift # past argument
-	shift # past value
-    ;;
-    -h|--help)
-	echo "usage: $0 -i inputfile"
-	echo "  -l <n> : put n lines per page"
-	exit 0
-	;;
-    -i|--input)
-	LINES="$2"
-	shift # past argument
-	shift # past value
-    ;;
-    *)    # unknown option
-    POSITIONAL+=("$1") # save it in an array for later
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case $key in
+      -i|--input)
+  	FILE="$2"
+  	shift # past argument
+  	shift # past value
+      ;;
+      -h|--help)
+  	echo "usage: $0 -i inputfile"
+  	echo "  -l <n> : put n lines per page"
+  	exit 0
+  	;;
+      -l|--lines)
+  	LINES="$2"
+  	shift # past argument
+  	shift # past value
+      ;;
+      -p|--preserve)
+    PRESERVE=1
     shift # past argument
-    ;;
-esac
+      ;;
+      *)    # unknown option
+      POSITIONAL+=("$1") # save it in an array for later
+      shift # past argument
+      ;;
+  esac
+done
 
 basename=${FILE%.*}
-split -d -l 50 $FILE "${basename}-chunk-"
+if [ "$basename" == "" ]; then
+    echo "please specify the input file"
+    exit 1
+fi
+split -l $LINES $FILE "${basename}-chunk-" || exit 2
 # use digits to distinguish chunks, put 25 lines per page
 
 for subfile in ${basename}-chunk-* ; do
@@ -51,4 +62,7 @@ for subfile in ${basename}-chunk-* ; do
     #
     # # Do OCR on the created .jpg file and export
     tesseract $subfile-dithered.jpg "$subfile-converted"
+    if [ "$PRESERVE" != 1 ]; then
+      rm $subfile.jpg $subfile-dithered.jpg
+    fi
 done
