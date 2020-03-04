@@ -1,7 +1,0 @@
----
-title: "Who Represents You?"
-output:
-  pdf_document: default
-css: styles.css
----
-this is a smaple sentence
