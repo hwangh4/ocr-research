@@ -4,27 +4,20 @@
 
 if [ $USER == "siim" ] || [ $USER == "otoomet" ] ; then
     echo "Ott"
-    SOFFICE=$(which soffice)
-    # note: soffice program must not be running on background!
     MAGICK=convert
 else
     echo "Scarlett"
-    SOFFICE=/Applications/LibreOffice.app/Contents/MacOS/soffice
     MAGICK=magick
 fi
 
+POSITIONAL=()
 LINES=50  # lines per page
 
 while [[ $# -gt 0 ]]; do
   key="$1"
   case $key in
-      -i|--input)
-  	FILE="$2"
-  	shift # past argument
-  	shift # past value
-      ;;
       -h|--help)
-  	echo "usage: $0 -i inputfile"
+  	echo "usage: $0 [-l n]"
   	echo "  -l <n> : put n lines per page"
   	exit 0
   	;;
@@ -44,8 +37,10 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-basename=${FILE%.*}
-if [ "$basename" == "" ]; then
+file=${POSITIONAL[0]}
+basename=$([[ "$file" = *.* ]] && echo "${file%*.}" || echo "${file}")
+echo $basename
+if [ -z "$basename" ]; then
     echo "please specify the input file"
     exit 1
 fi
