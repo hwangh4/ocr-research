@@ -147,6 +147,11 @@ test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
                    ("a", "b", "c", "d", "e", " ", "None"))
 
 ###-------------------------- Run actual test -------------------------------###
+# os.listdir(folder name, accepts pattern?) -> gives all file names
+# keep only originals, separate converted
+#
+# for file in [list of file names]
+# you have to have original, converted name here
 main(args.original, args.converted, t)
 
 
