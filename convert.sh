@@ -72,7 +72,7 @@ if [ -d $basename ]; then
 else
     mkdir $basename || exit 1
 fi
-cd $basename  
+cd $basename
 
 split -l $LINES ../$file "${basename}-chunk-" || exit 2
 
@@ -86,7 +86,7 @@ for subfile in ${basename}-chunk-*.txt ; do
     echo " -- "$subfile
     # Extract just the name of the file without extention
     subbase=${subfile%.txt}
-    
+
     ## Convert text to jpg
     ## Play with font and point size
     ## Uses "annotate", intended for adding text to images
@@ -104,6 +104,6 @@ for subfile in ${basename}-chunk-*.txt ; do
 
     # Preserve jpeg files if specified
     if [ "$PRESERVE" != 1 ]; then
-      rm $subfile.jpg $subfile-dithered.jpg
+      rm $subbase.jpg $subbase-dithered.jpg
     fi
 done
