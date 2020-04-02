@@ -1,160 +1,108 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # coding: utf-8
 
-# # OCR Common Error Unigram Table Script
-# ### Eviction Study - Automated Optical Character Recognition Correction Algorithm Research
-#
-# Author: Scarlett Heeyeon Hwang
-#
-# (VER 3 - currently handles insertions, substitutions, and deletions)
-#
-# January 20th, 2020
+# Error Table Generation Code Using Python difflib Library
+# Scarlett Hwang, April 1st, 2020
 
-def module_exists(module_name):
-    try:
-        __import__(module_name)
-    except ImportError:
-        return False
-    else:
-        return True
-
-###---------------------- Import libraries ----------------------###
-import numpy as np
-import pandas as pd
-import string
-if module_exists("prettytable"):
-    import prettytable as pt
+# Import libraries
+import difflib as dl
+import re
 import argparse
-import pprint as pp
+
+
+# Call test texts
+
+# Call test texts
+# 50 lines
+# o = open("moby_dick-orig/moby_dick-orig-chunk-aa.txt", "r").read()
+# c = open("moby_dick-orig/moby_dick-orig-chunk-aa-converted.txt", "r").read()
+
+# 10 lines
+# o = open("moby_dick-10/moby_dick-orig-chunk-ab.txt", "r").read()
+# c = open("moby_dick-10/moby_dick-orig-chunk-ab-converted.txt", "r").read()
 
 ## parameterize the file names for command line inputs
 parser = argparse.ArgumentParser()
 parser.add_argument("original")
 parser.add_argument("converted")
 args = parser.parse_args()
+o = open(args.original, "r").read()
+c = open(args.converted, "r").read()
+
+# Alter format
+# strip new line characters
+o = [x.strip() for x in o.split("\n")]
+c = [x.strip() for x in c.split("\n")]
+o = [x for x in o if x != '']
+c = [x for x in c if x != '']
 
 
-###----------------------- Generate Table -----------------------###
-## Generate the "big" table with all possible English ascii letters that could
-## be read in by tesseract
-## row - original / column - converted
+# Initiate dictionary generation function
+def make_dict(list):
+    global table
+    i = -1
 
-## 1. Splice all possible ascii characters
-all_ascii = string.printable
+    # iterate through char array
+    while i < len(list) - 1:
+        i += 1
+        indicator = list[i][0]
+        ch = list[i][2]
 
-## 2. Create row names with "Del" value for counting up insertions and deletions
-letters = list(all_ascii[:-5])
-letters.append("Del")
+        # 1) CORRECT - if original and converted chars match (successfully recognized)
+        if indicator == " ":
+            chdict = table.get(ch, {})
+            chdict[ch] = chdict.get(ch, 0) + 1
+            table[ch] = chdict
+            continue
 
+        # 2) SUBSTITUTED - if char is not the last character and +/- follows -/+
+        if i + 1 < len(list):
 
-## 3. Generate table
-t = pd.DataFrame(0, letters, letters)
+            # adjacent character and its indicator
+            ch1_ind = list[i + 1][0]
+            ch1 = list[i + 1][2]
 
-
-###------ Create Unigram Chart from Original and Converted File (main) ------###
-## We assume the length for conv and orig are equal at this point
-## Params: orig_name(file) - original file of text
-##         conv_name(file) - converted file of text after OCR (contains errors)
-
-def main(orig_name, conv_name, t):
-    orig = open(orig_name, "r").read()
-    conv = open(conv_name, "r").read()
-
-    i = 0   # set initial index for orig
-
-    # compare orig in function of conv (REVISE)
-    for j in range(len(conv)):
-        # if current char of orig and conv are not equal
-
-        if (i < len(orig) and orig[i] != conv[j]):
-            curr = i    # temp to prevent overwriting current index
-
-            i = same_char_at_index(i, j, orig, conv)
-
-            # 1. if *insertion* occured so returned value is None (REVISE)
-            if i is None:
-                if conv[j] in t.columns:
-                    t.loc["Del", conv[j]] += 1
-                i = curr
+            # (this letter was added first)
+            if (indicator == "+" and ch1_ind == "-"):
+                chdict = table.get(ch1, {})
+                chdict[ch] = chdict.get(ch, 0) + 1
+                table[ch1] = chdict
+                i += 1 # increment i and skip next char
                 continue
 
-            # 2. if *deletion* occured
-            if i > curr:
-                # log every deleted letters in a row
-                while i > curr:
-                    # count up for [orig, Del] if our ascii letters list
-                    #  contains orig char
-                    try:
-                        t.loc[orig[curr], "Del"] += 1
-                    except:
-                        pass
-                    curr += 1
+            # (this letter was deleted first)
+            if (indicator == "-" and ch1_ind == "+"):
+                chdict = table.get(ch, {})
+                chdict[ch1] = chdict.get(ch1, 0) + 1
+                table[ch] = chdict
+                i += 1 # increment i and skip next char
+                continue
 
-                ## DO WE NEED THIS??????
-                try:
-                    t.loc[orig[i], conv[j]] += 1
-                except:
-                    pass
+        # 3) DELETED - if char is not followed by another indicator and this indicator is "-"
+        if indicator == "-":
+            chdict = table.get(ch, {})
+            chdict["Del"] = chdict.get("Del", 0) + 1
+            table[ch] = chdict
 
-            # 3. if *substitution* occured
-            else:
-                try:
-                    t.loc[orig[i], conv[j]] += 1
-                except:
-                    pass
+        # 4) INSERTED - if char is not followed by another indicator and this indicator is "+"
+        elif indicator == "+":
+            chdict = table.get("Del", {})
+            chdict[ch] = chdict.get(ch, 0) + 1
+            table["Del"] = chdict
 
-        # if current char of orig and conv are equal
+        # 5) OTHER - pass any edge cases for now (never found so far)
         else:
-            try:
-                t.loc[orig[i], conv[j]] += 1
-            # pass if the char is not in our ascii letters list
-            except:
-                pass
+            print("-- something weird going on ---", indicator, ch)
+            pass
+            
 
-        # increment orig's index
-        i += 1
-
-
-###------------- Move index of original text to correct position ------------###
-## Return (int): updated index if deletion occured
-##               None if substitution occured
-def same_char_at_index(i, j, orig, conv):
-    """
-    find if there is a similar character (as in 'orig'
-    at position i) in 'conv' at position [j ... j+3]
-    """
-    count = 0  # position relative to j
-    index = i  # copy of i for not to overwrite i
-    while (count < 3 and index < len(orig)):
-        if (orig[index] == conv[j]):
-            return(index)
-        else:
-            index += 1
-            count += 1
-    # if the next letters match (substitution)
-    if i + 1 < len(orig) and j + 1 < len(conv):
-        if orig[i + 1] == conv[j + 1]:
-            return i
-    else: # if this is last letter
-        return i
-
-    # nothing matched (insertion)
-    return None
+# Initiate and generate dictionary
+table = {}
+for ol, cl in zip(o,c):
+    n = dl.ndiff(ol, cl)
+    list = [i for i in n]
+    make_dict(list)
 
 
-###--------------------------- Run unit test --------------------------------###
-test = pd.DataFrame(0, ("a", "b", "c", "d", "e", " "),
-                   ("a", "b", "c", "d", "e", " ", "None"))
-
-###-------------------------- Run actual test -------------------------------###
-# os.listdir(folder name, accepts pattern?) -> gives all file names
-# keep only originals, separate converted
-#
-# for file in [list of file names]
-# you have to have original, converted name here
-main(args.original, args.converted, t)
-
-
-###--------------------------- Run unit test --------------------------------###
-d = {c: dict(t.loc[c][t.loc[c] != 0]) for c in t.index if t.loc[c].sum() > 0}
-pp.pprint(d)
+# Quality check - print dictionary
+print(table)
