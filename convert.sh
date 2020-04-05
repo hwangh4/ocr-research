@@ -82,8 +82,10 @@ for subfile in ${basename}-chunk-* ; do
 done
 
 ## main conversion loop
+n=$(ls ${basename}-chunk-*.txt|wc -l)
+i=1
 for subfile in ${basename}-chunk-*.txt ; do
-    echo " -- "$subfile
+    echo " -- "$subfile "($i/$n)"
     # Extract just the name of the file without extention
     subbase=${subfile%.txt}
 
@@ -106,4 +108,5 @@ for subfile in ${basename}-chunk-*.txt ; do
     if [ "$PRESERVE" != 1 ]; then
       rm $subbase.jpg $subbase-dithered.jpg
     fi
+    i=$((i + 1))
 done
