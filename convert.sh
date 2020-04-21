@@ -2,10 +2,10 @@
 # OCR Text-image File Conversion Script
 # January 10th, 2020
 
-if [ $USER == "siim" ] || [ $USER == "otoomet" ] ; then
-    MAGICK=convert
-else
+if [ $USER == "AndyLee"] ; then
     MAGICK=magick
+else
+    MAGICK=convert
 fi
 
 POSITIONAL=()
