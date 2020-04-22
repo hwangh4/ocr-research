@@ -12,6 +12,7 @@ POSITIONAL=()
 LINES=50  # lines per page
 FORCE=""  # don't overwrite the folder
 POINTSIZE=12  # how bit a font to use
+MAXPAGES=1000000000  # at most process 1G pages
 
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -32,10 +33,15 @@ while [[ $# -gt 0 ]]; do
   	  exit 0
   	  ;;
       -l|--lines)
-  	LINES="$2"
-  	shift # past argument
-  	shift # past value
-	;;
+  	  LINES="$2"
+  	  shift # past argument
+  	  shift # past value
+	  ;;
+      -m|--max-pages)
+  	  MAXPAGES="$2"
+  	  shift # past argument
+  	  shift # past value
+	  ;;
       -p|--preserve)
 	  PRESERVE=1
 	  shift # past argument
@@ -46,20 +52,21 @@ while [[ $# -gt 0 ]]; do
 	  shift
 	  ;;
       *)    # unknown option
-      POSITIONAL+=("$1") # save it in an array for later
-      shift # past argument
-      ;;
+	  POSITIONAL+=("$1") # save it in an array for later
+	  shift # past argument
+	  ;;
   esac
 done
 
-echo "  pointsize ${POINTSIZE} (change with --pointsize)"
+echo "  pointsize (--pointsize)         :" ${POINTSIZE}
+echo "  max page count (-m, --max-pages):" $MAXPAGES
 file=${POSITIONAL[0]}
 basename=$([[ "$file" = *.* ]] && echo "${file%.*}" || echo "${file}")
 if [ -z "$basename" ]; then
     echo "please specify the input file"
     exit 1
 fi
-
+echo "  input file: " $file
 echo "splitting $file into chunks of $LINES lines"
 if [ -d $basename ]; then
     if [ -z $FORCE ]; then
@@ -83,7 +90,7 @@ done
 
 ## main conversion loop
 n=$(ls ${basename}-chunk-*.txt|wc -l)
-i=1
+i=1  # counts pages
 for subfile in ${basename}-chunk-*.txt ; do
     echo " -- "$subfile "($i/$n)"
     # Extract just the name of the file without extention
@@ -109,4 +116,16 @@ for subfile in ${basename}-chunk-*.txt ; do
       rm $subbase.jpg $subbase-dithered.jpg
     fi
     i=$((i + 1))
+    if [ $i -gt $MAXPAGES ]; then
+	# only process this many pages
+	## find chunks that are not converted
+	originalchunks=$(find . -regex ./${basename}-chunk-[^-]+.txt)
+	convertedchunks=$(find . -regex ./${basename}-chunk-.+-converted.txt | sed -e 's/-converted//g')
+	echo "all $MAXPAGES pages done"
+	unconverted=$(grep -x -v -F -f <(echo "$convertedchunks") <(echo "$originalchunks"))
+	rm $unconverted
+	echo "done"
+	break
+    fi
 done
+echo "All done :-)"
