@@ -26,6 +26,7 @@ while [[ $# -gt 0 ]]; do
   	  echo "usage: $0 [-l n] <inputfile.txt>"
 	  echo "split the inputfile into page images, add noise, convert back"
 	  echo "the results will be put in the directory named <inputfile>"
+	  echo "accepts input file in .bz2 compressed format"
 	  echo "  -f, --force     : force the output dir to be overwritten"
   	  echo "  -l <n>, --lines : put n lines per page (default 50)"
 	  echo "  -p, --preserve  : preserve the image files"
@@ -61,7 +62,7 @@ done
 echo "  pointsize (--pointsize)         :" ${POINTSIZE}
 echo "  max page count (-m, --max-pages):" $MAXPAGES
 file=${POSITIONAL[0]}
-dirname=$(dirname $file)
+dirname=$(dirname $(realpath $file))  # ensure we have absolute path name
 file=$(basename $file)
 basename=$([[ "$file" = *.* ]] && echo "${file%.*}" || echo "${file}")
 if [ -z "$basename" ]; then
@@ -84,10 +85,13 @@ fi
 cd $basename
 
 ## Split, eventually decompress
+echo $(file -b -i $dirname/$file)
 if [ "$(file -b -i $dirname/$file)" == "application/x-bzip2; charset=binary" ]; then
     # bz2 compressed
+    echo "bz2 compressed file"
     bzip2 -dc  $dirname/$file | split -l $LINES - "${basename}-chunk-" || exit 2
 else
+    echo "uncompressed text"
     split -l $LINES $dirname/$file "${basename}-chunk-" || exit 2
 fi
 
