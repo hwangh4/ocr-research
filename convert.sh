@@ -2,7 +2,7 @@
 # OCR Text-image File Conversion Script
 # January 10th, 2020
 
-if [ $USER == "AndyLee"] ; then
+if [ $USER == "AndyLee" ] ; then
     MAGICK=magick
 else
     MAGICK=convert
@@ -25,10 +25,10 @@ while [[ $# -gt 0 ]]; do
   	  echo "usage: $0 [-l n] <inputfile.txt>"
 	  echo "split the inputfile into page images, add noise, convert back"
 	  echo "the results will be put in the directory named <inputfile>"
-	  echo "  -f : force the output dir to be overwritten"
-  	  echo "  -l <n> : put n lines per page (default 50)"
-	  echo "  -p : keep the image files"
-	  echo "  --pointsize : font size in points (default 12)"
+	  echo "  -f, --force     : force the output dir to be overwritten"
+  	  echo "  -l <n>, --lines : put n lines per page (default 50)"
+	  echo "  -p, --preserve  : preserve the image files"
+	  echo "  --pointsize     : font size in points (default 12)"
   	  exit 0
   	  ;;
       -l|--lines)
@@ -94,7 +94,7 @@ for subfile in ${basename}-chunk-*.txt ; do
     ## Uses "annotate", intended for adding text to images
     convert -size 3000x2000 xc:white -pointsize $POINTSIZE\
 	    -fill black\
-	    -annotate +15+15 "@$subfile"\
+	    -annotate +$POINTSIZE+$POINTSIZE "@$subfile"\
 	    -trim -bordercolor "#FFF" -border 20 +repage\
 	    ${subbase}.jpg
 
