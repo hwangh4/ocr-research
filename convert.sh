@@ -61,12 +61,14 @@ done
 echo "  pointsize (--pointsize)         :" ${POINTSIZE}
 echo "  max page count (-m, --max-pages):" $MAXPAGES
 file=${POSITIONAL[0]}
+dirname=$(dirname $file)
+file=$(basename $file)
 basename=$([[ "$file" = *.* ]] && echo "${file%.*}" || echo "${file}")
 if [ -z "$basename" ]; then
     echo "please specify the input file"
     exit 1
 fi
-echo "  input file: " $file
+echo "  input file: " $dirname/$file
 echo "splitting $file into chunks of $LINES lines"
 if [ -d $basename ]; then
     if [ -z $FORCE ]; then
@@ -81,7 +83,13 @@ else
 fi
 cd $basename
 
-split -l $LINES ../$file "${basename}-chunk-" || exit 2
+## Split, eventually decompress
+if [ "$(file -b -i $dirname/$file)" == "application/x-bzip2; charset=binary" ]; then
+    # bz2 compressed
+    bzip2 -dc  $dirname/$file | split -l $LINES - "${basename}-chunk-" || exit 2
+else
+    split -l $LINES $dirname/$file "${basename}-chunk-" || exit 2
+fi
 
 ## rename chunks back to .txt so it is easier to handle this afterwards
 for subfile in ${basename}-chunk-* ; do
