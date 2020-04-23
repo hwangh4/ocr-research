@@ -9,7 +9,7 @@ else
 fi
 
 POSITIONAL=()
-LINES=50  # lines per page
+SPLITLINES=50  # lines per page (LINES interferes with screen?)
 FORCE=""  # don't overwrite the folder
 POINTSIZE=12  # how bit a font to use
 MAXPAGES=1000000000  # at most process 1G pages
@@ -34,7 +34,7 @@ while [[ $# -gt 0 ]]; do
   	  exit 0
   	  ;;
       -l|--lines)
-  	  LINES="$2"
+  	  SPLITLINES="$2"
   	  shift # past argument
   	  shift # past value
 	  ;;
@@ -60,6 +60,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 echo "  pointsize (--pointsize)         :" ${POINTSIZE}
+echo "  page size in lines              :" ${SPLITLINES}
 echo "  max page count (-m, --max-pages):" $MAXPAGES
 file=${POSITIONAL[0]}
 dirname=$(dirname $(realpath $file))  # ensure we have absolute path name
@@ -70,7 +71,7 @@ if [ -z "$basename" ]; then
     exit 1
 fi
 echo "  input file: " $dirname/$file
-echo "splitting $file into chunks of $LINES lines"
+echo "splitting $file into chunks of $SPLITLINES lines"
 if [ -d $basename ]; then
     if [ -z $FORCE ]; then
 	echo "cannot proceed -- directory ${basename} exists"
@@ -89,10 +90,11 @@ echo $(file -b -i $dirname/$file)
 if [ "$(file -b -i $dirname/$file)" == "application/x-bzip2; charset=binary" ]; then
     # bz2 compressed
     echo "bz2 compressed file"
-    bzip2 -dc  $dirname/$file | split -l $LINES - "${basename}-chunk-" || exit 2
+    bzip2 -dc  $dirname/$file | split --lines=${SPLITLINES} - "${basename}-chunk-" || exit 2
+    echo "split"
 else
     echo "uncompressed text"
-    split -l $LINES $dirname/$file "${basename}-chunk-" || exit 2
+    split -l $SPLITLINES $dirname/$file "${basename}-chunk-" || exit 2
 fi
 
 ## rename chunks back to .txt so it is easier to handle this afterwards
