@@ -10,6 +10,8 @@ import re
 import argparse
 import os
 import pprint as pp
+import json
+
 
 # Parse directory passed with command line argument
 parser = argparse.ArgumentParser()
@@ -141,4 +143,8 @@ for c, o in iterate_two(sorted(os.listdir(args.directory)), 2):
 
 # Quality check - print dictionary
 pp.pprint(table)
+
+with open('table.json', 'w') as file:
+    file.write(json.dumps(table))
+
 print("final total letter count:", total_count)
