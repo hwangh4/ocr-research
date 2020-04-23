@@ -141,10 +141,8 @@ for c, o in iterate_two(sorted(os.listdir(args.directory)), 2):
         make_dict(n)
     print("total_count ", total_count)
 
-# Quality check - print dictionary
-pp.pprint(table)
-
-with open('table.json', 'w') as file:
+outfname = "table.json"
+with open(outfname, 'w') as file:
     file.write(json.dumps(table))
-
+print("output written to", outfname)
 print("final total letter count:", total_count)

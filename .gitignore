@@ -5,3 +5,6 @@
 # temporary files
 *.out
 
+# Data
+corpus/
+*.bz2
