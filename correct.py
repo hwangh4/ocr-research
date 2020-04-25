@@ -91,7 +91,7 @@ args = parser.parse_args()
 
 table = load_table()
 corpus = load_corpus()
-# print(table)
+print(table)
 
 test = """
 ćontragravity lorries were driffing back and forth, scattering
@@ -111,8 +111,8 @@ middle-aged colonel cn a decent planet-Odin, with its two moons,
 tokens = test.replace('-', ' ').split()
 
 # Strip remaining punctuations
-table = str.maketrans('', '', string.punctuation)
-tokens = [w.translate(table) for w in tokens]
+punc = str.maketrans('', '', string.punctuation)
+tokens = [w.translate(punc) for w in tokens]
 
 for token_conv in tokens:
     best_ll = -np.Inf
