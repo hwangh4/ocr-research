@@ -145,4 +145,5 @@ outfname = "table.json"
 with open(outfname, 'w') as file:
     file.write(json.dumps(table))
 print("output written to", outfname)
+
 print("final total letter count:", total_count)

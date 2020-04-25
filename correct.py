@@ -6,15 +6,20 @@
 import json
 import pandas as pd
 import numpy as np
+import argparse
+import os
 
 def load_corpus():
     """
     load word frequency corpus
     """
     print("Loading corpus")
+    # if (args.ver == "scarlett"):
+    #     a = pd.read_csv("frequency-corpus.txt", sep="\t",
+    #                     keep_default_na=False, na_values=[""], names=["word", "count"])
+    # else:
     a = pd.read_csv("corpus/frequency-corpus.txt.bz2", sep="\t",
-                    keep_default_na=False, na_values=[""]
-                               )
+                    keep_default_na=False, na_values=[""])
     c = pd.Series(a["count"].values, index=a.word)
     c = np.log(c) - np.log(sum(c))
     return c
@@ -27,7 +32,7 @@ def load_table():
     table = json.load(open("table.json"))
     return table
 
-    
+
 def char_based_pr(conv, orig):
     """
     return log Pr(converted|original) for individual letters
@@ -40,11 +45,11 @@ def char_based_pr(conv, orig):
         else:
             return 1e-8
     else:
-        raise ValueError("Crap, I have never seen this character in the table" + orig) 
+        raise ValueError("Crap, I have never seen this character in the table" + orig)
 
 def loglik():
     pass
-    
+
 def word_based_pr(conv, orig):
     """
     return log Pr(converted|original) for individual words/tokens/other
@@ -60,15 +65,22 @@ def word_based_pr(conv, orig):
         print(ve)
         return 0
 
+
+## ------------- TEST THE CODE -----------------##
+parser = argparse.ArgumentParser()
+parser.add_argument("ver")
+args = parser.parse_args()
+
 table = load_table()
 corpus = load_corpus()
-
-examples = [('applc', 'apple'), ('Utter', 'Uller'), ("4.", "1."),
-            ("tie", "the"), ("tbe", "the")]
-print("A few examples")
-for conv, orig in examples:
-    print("Pr(", conv, "|", orig, ") =", word_based_pr(conv, orig))
-
+print(table)
+#
+# examples = [('applc', 'apple'), ('Utter', 'Uller'), ("4.", "1."),
+#             ("tie", "the"), ("tbe", "the")]
+# print("A few examples")
+# for conv, orig in examples:
+#     print("Pr(", conv, "|", orig, ") =", word_based_pr(conv, orig))
+#
 test = """
 contragravity lorries were driffing back and forth, scattering
 fertilizer, mainly nitrates from Mimir or Yggarasill. There were stit
