@@ -91,7 +91,7 @@ args = parser.parse_args()
 
 table = load_table()
 corpus = load_corpus()
-print(table)
+# print(table)
 
 test = """
 ćontragravity lorries were driffing back and forth, scattering
