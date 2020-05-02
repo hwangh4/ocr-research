@@ -28,12 +28,15 @@ def load_corpus():
 
 ## -------------  -----------------##
 
-def load_table(fname):
+def load_table(fname, log=True):
     """
     load the count dict from file.
     eventually does smoothing and other things
     """
     table = json.load(open(fname))
+    if not log:
+        # mainly for debugging: it is handy to have the original table
+        return table
     grandtotal = 0
     logtable = {}
     for letter, lettertransforms in table.items():
@@ -91,6 +94,7 @@ def word_based_pr(conv, orig):
             pair = zip(orig, conv + " ")
         elif len(orig) < len(conv):
             pair = zip(orig + " ", conv)
+        # loop over original-converted characters
         word_p = 0
         for o, c in pair:
             word_p += char_based_pr(c, o)

@@ -8,3 +8,6 @@
 # Data
 corpus/
 *.bz2
+
+# converted texts
+*-txt/
