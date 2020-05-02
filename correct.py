@@ -12,12 +12,13 @@ import string
 import re
 
 
+## ---------- load corpus ----------
 def load_corpus():
     """
     load word frequency corpus
+    return a dicts of corresponding word log probabilites
     """
     print("Loading corpus")
-
     a = pd.read_csv("corpus/frequency-corpus.txt.bz2", sep="\t",
                     keep_default_na=False, na_values=[""])
     c = pd.Series(a["count"].values, index=a.word)
@@ -27,13 +28,23 @@ def load_corpus():
 
 ## -------------  -----------------##
 
-def load_table():
+def load_table(fname):
     """
     load the count dict from file.
     eventually does smoothing and other things
     """
-    table = json.load(open(args.table))
-    return table
+    table = json.load(open(fname))
+    grandtotal = 0
+    logtable = {}
+    for letter, lettertransforms in table.items():
+        transforms = {}
+        total = sum(lettertransforms.values())
+        for converted, count in lettertransforms.items():
+            transforms[converted] = np.log(count) - np.log(total)
+        logtable[letter] = transforms
+        grandtotal += total
+    print("  In total", grandtotal, "transformations")
+    return logtable
 
 
 ## ------------- CHARACTER PROBABILITY CALCULATION -----------------##
@@ -45,10 +56,10 @@ def char_based_pr(conv, orig):
     """
     if orig in table:
         if conv in table[orig]:
-            p = table[orig][conv] / sum(table[orig].values())
-            return np.log(p)
+            p = table[orig][conv]
+            return p
         else:
-            return 1e-8
+            return -20.72  # log(1e-9)
     else:
         raise ValueError("Crap, I have never seen this character in the table" + orig)
 
@@ -71,9 +82,18 @@ def word_based_pr(conv, orig):
     the corresponding counts are based on dict 'table', used by 'char_based_pr'
     """
     try:
+        # are these words of the same length?
+        # if not, add a space to the shorter one
+        # otherwise zip() will only include the first few characters
+        if len(orig) == len(conv):
+            pair = zip(orig, conv)
+        elif len(conv) < len(orig):
+            pair = zip(orig, conv + " ")
+        elif len(orig) < len(conv):
+            pair = zip(orig + " ", conv)
         word_p = 0
-        for i, j in zip(orig, conv):
-            word_p = word_p + char_based_pr(j, i)
+        for o, c in pair:
+            word_p += char_based_pr(c, o)
         return(word_p)
     except ValueError as ve:
         #print(ve)
@@ -89,7 +109,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("table")
 args = parser.parse_args()
 
-table = load_table()
+error_table_fname = args.table
+
+table = load_table(error_table_fname)
 corpus = load_corpus()
 # print(table)
 
