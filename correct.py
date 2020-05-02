@@ -122,6 +122,7 @@ for token_conv in tokens:
     if not re.match('^[a-zA-Z_]+$', token_conv):   # if special character is found
         print(token_conv, " (skipped - contains accented character)")
     else:
+        # parallelize
         for token_orig in corpus.index:
             l = word_based_pr(token_conv, token_orig) + corpus[token_orig]
             if l > best_ll:
