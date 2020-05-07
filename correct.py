@@ -116,10 +116,48 @@ args = parser.parse_args()
 error_table_fname = args.table
 
 ## ---------- load and such
+## Here we transform the characters into integer indices to speed up array lookup
 table = load_table(error_table_fname)
-corpus = load_corpus()
-# print(table)
+# create a series of all original characters and converted characters
+ochar_list = list(table.keys())
+oindex = pd.Series(range(len(ochar_list)), index=ochar_list, dtype="int")  # tell char based on index
+ochar = pd.Series(ochar_list, index=range(len(ochar_list)))  # tell index based on char
+cchar_set = set()
+for k, v in table.items():
+    # v is a dict with converted chars as values
+    cchar_set |= set(v.keys())
+cchar_list = list(cchar_set)
+cindex = pd.Series(range(len(cchar_list)), index=cchar_list, dtype="int")  # tell char based on index
+cchar = pd.Series(cchar_list, index=range(len(cchar_list)))  # tell index based on char
+# create the log-probability table 'prco'
+# rows are integer indices for original letters, columns are integer indices for converted letters
+# look up integer indices from oindex, cindex series.
+prco = np.zeros(shape = (len(ochar), len(cchar))) - 12  # Pr(c|o)
+#    -12 -> default entry for non-observed conversion, sort of Bayesian prior
+# fill out the table
+for oc, convertdict in table.items():
+    # v is a dict with converted chars as values
+    io = oindex[oc]
+    for cc, loglik in convertdict.items():
+        jc = cindex[cc]
+        prco[io,jc] = loglik
+# prco done
 
+## load corpus and transform it into arrays of letter indices
+corpus = load_corpus()
+corpuslen = np.array(corpus.index.str.len() + 1)  # array of word lengths, including +1 for end marker
+maxlen = max(corpuslen)  # max word length, we need it for the 'corpuswords' table
+corpuswords = np.zeros(shape = (len(corpus), maxlen), dtype="int") - 1  # table of corpus words in letter index form
+#   rows: words, columns: letters, coding is the same as coding of the original characters
+print("create corpus letter table")
+# should speed up the following... takes a few min currently
+for iw, w in enumerate(corpus.index):
+    chars = list(w + " ")  # adds space at the end as the end marker
+    i = oindex[chars]
+    corpuswords[iw, :len(i)] = i
+# 
+
+## ---------- run
 test = """
 ćontragravity lorries were driffing back and forth, scattering
 fertilizer, mainly nitrates from Mimir or Yggarasill. There were stit
@@ -141,27 +179,22 @@ tokens = test.replace('-', ' ').split()
 punc = str.maketrans('', '', string.punctuation)
 tokens = [w.translate(punc) for w in tokens]
 
-for token_conv in tokens:
+for token_conv in tokens[:30]:
     best_ll = -np.Inf
     o = token_conv
     print(token_conv, "->", end=" ")
 
-    if not re.match('^[a-zA-Z_]+$', token_conv):   # if special character is found
-        print(token_conv, " (skipped - contains accented character)")
-    else:
-        for token_orig in corpus.index:
-            l = word_based_pr(token_conv, token_orig) + corpus[token_orig]
+    tokenchars = list(token_conv + " ")
+    if all([c in cindex.index for c in tokenchars]):
+        # all token characters are known
+        cletters = cindex[tokenchars].values
+        for iorig in range(len(corpuswords)):
+            minlen = min(len(cletters), corpuslen[iorig])
+            p = prco[corpuswords[iorig, :minlen], cletters[:minlen]]  # [original, converted]
+            l = sum(p) + corpus.iloc[iorig]
             if l > best_ll:
                 best_ll = l
-                o = token_orig
+                o = corpus.index[iorig]
         print(o)
-
-## ------------- COMMAND-LINE ARGUMENT DIRECTORY --------##
-# Run on a specific folder - uncomment when code is ready
-# for c, o in iterate_two(sorted(os.listdir(args.directory)), 2):
-#     o = open((args.directory + "/" + o), "r").read()
-#     c = open((args.directory + "/" + c), "r").read()
-#
-#     for i, j in zip(o.split(), c.split()):
-#         print(i, j)
-#         print(word_based_pr(i, j))
+    else:
+        print(o, ": contains unknown character, not processed")
