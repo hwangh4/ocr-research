@@ -3,6 +3,7 @@
 
 # Probabilities Calculation Functions Using Bayes Theorem
 # Scarlett Hwang | April 14th, 2020
+##
 import json
 import pandas as pd
 import numpy as np
@@ -63,7 +64,7 @@ def char_based_pr(conv, orig):
             p = table[orig][conv]
             return p
         else:
-            return -20.72  # log(1e-9)
+            return -12  # log(1e-9)
     else:
         raise ValueError("Crap, I have never seen this character in the table" + orig)
 
@@ -131,9 +132,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("table")
 # parser.add_argument("textfile")   # uncomment for input command-line arg
 args = parser.parse_args()
-
 error_table_fname = args.table
 
+## ---------- load and such
 table = load_table(error_table_fname)
 corpus = load_corpus()
 # print(table)
