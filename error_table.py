@@ -141,7 +141,7 @@ for c, o in iterate_two(sorted(os.listdir(args.directory)), 2):
         make_dict(n)
     print("total_count ", total_count)
 
-outfname = paste(args.directory, ".json")
+outfname = args.directory + ".json"
 with open(outfname, 'w') as file:
     file.write(json.dumps(table))
 print("output written to", outfname)
