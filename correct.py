@@ -3,7 +3,6 @@
 
 # Probabilities Calculation Functions Using Bayes Theorem
 # Scarlett Hwang | April 14th, 2020
-##
 import json
 import pandas as pd
 import numpy as np
@@ -11,8 +10,7 @@ import argparse
 import os
 import string
 import re
-import threading
-
+from multiprocessing import Pool
 
 ## ---------- load corpus ----------
 def load_corpus():
@@ -64,7 +62,7 @@ def char_based_pr(conv, orig):
             p = table[orig][conv]
             return p
         else:
-            return -12  # log(1e-9)
+            return -20.72  # log(1e-9)
     else:
         raise ValueError("Crap, I have never seen this character in the table" + orig)
 
@@ -106,22 +104,22 @@ def word_based_pr(conv, orig):
         return 0
 
 # search corpus
-def search_dict(token_conv, start_index, end_index):
-    # if passed-in end index is larger than corpus' size
-    if end_index >= corpus.size:
-        end_index = corpus.size - 1;
-
-    # search between range
+def search_dict(token_conv):
     best = -np.Inf
     o = token_conv
-    for token_orig in corpus.index[start_index:end_index]:
+    for token_orig in corpus.index:
         l = word_based_pr(token_conv, token_orig) + corpus[token_orig]
         if l > best:
             best = l
             o = token_orig
     o_dict[o] = best
-    # print(o_dict[o])
 
+    return o_dict
+
+def log_result(result):
+    # This is called whenever foo_pool(i) returns a result.
+    # result_list is modified only by the main process, not the pool workers.
+    result_list.append(result)
 
 ## ------------- TEST THE CODE -----------------##
 # parser = argparse.ArgumentParser()
@@ -132,9 +130,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("table")
 # parser.add_argument("textfile")   # uncomment for input command-line arg
 args = parser.parse_args()
+
 error_table_fname = args.table
 
-## ---------- load and such
 table = load_table(error_table_fname)
 corpus = load_corpus()
 # print(table)
@@ -172,37 +170,19 @@ for token_conv in tokens:
     if not re.match('^[a-zA-Z_]+$', token_conv):   # if special character is found
         print(token_conv, " (skipped - contains accented character)")
     else:
-        # o, best_ll = search_dict(token_conv, 0, corpus.size)
-        # 2 threads : 5 words ~17 sec
-        # 5 threads : 5 words ~17 sec
-        # 8 threads : 17.396s
-        # 4 threads : 17.460s
-        o_dict = {}
-        thread_size = 2
-        threads = [None] * thread_size
-        window = int(corpus.size / thread_size)
+        pool_size = 2
+        result_list = ()
 
-        for i in range(thread_size):
-            # if last thread
-            if i + 1 == thread_size:
-                threads[i] = threading.Thread(target=search_dict, args=(token_conv, window * i, corpus.size - 1))
-            else:
-                threads[i] = threading.Thread(target=search_dict, args=(token_conv, window * i, window * (i + 1)))
-            threads[i].start()
+        p = Pool(pool_size)
+        p.apply_async(search_dict, args = (token_conv, ), callback = log_result)
+        p.close()
+        p.join()
+        print(result_list)
 
-        for i in range(len(threads)):
-            threads[i].join()
+        max_value = max(result_list.values())  # maximum value
+        max_key = [k for k, v in result_list.items() if v == max_value]
+        print(max_key, " is max key")
 
-        max_value = max(o_dict.values())  # maximum value
-        max_key = [k for k, v in o_dict.items() if v == max_value]
-        print(max_key)
-        # parallelize
-        # for token_orig in corpus.index:
-        #     l = word_based_pr(token_conv, token_orig) + corpus[token_orig]
-        #     if l > best_ll:
-        #         best_ll = l
-        #         o = token_orig
-        # print(o)
 
 
 ## ------------- COMMAND-LINE ARGUMENT DIRECTORY --------##
