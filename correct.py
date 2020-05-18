@@ -112,14 +112,14 @@ def search_dict(token_conv):
         if l > best:
             best = l
             o = token_orig
-    o_dict[o] = best
 
-    return o_dict
+    result_list.append(zip(o, best))
 
 def log_result(result):
     # This is called whenever foo_pool(i) returns a result.
     # result_list is modified only by the main process, not the pool workers.
-    result_list.append(result)
+    print(result)
+    result_list.append({result[0]: result[1]})
 
 ## ------------- TEST THE CODE -----------------##
 # parser = argparse.ArgumentParser()
@@ -135,23 +135,25 @@ error_table_fname = args.table
 
 table = load_table(error_table_fname)
 corpus = load_corpus()
-# print(table)
 
 # Example test for debugging
 test = """
-ćontragravity lorries were driffing back and forth, scattering
-fertilizer, mainly nitrates from Mimir or Yggarasill. There were stit
-a good number of animal-drawn plows ahd harrows in use, however.
-
-As planots went, Uiler was no bargain, he thought soury.Attimes, he
-wished he had never followed the lure of rapid promotion and
-fantastically high pay and left the Federation regulars for the army
-
-at the Uiler Company, the hadn't e'd probably be a colonel, zt
-
-five thousand sols a year, but maybe it would be better to be a
-middle-aged colonel cn a decent planet-Odin, with its two moons,
+ćontragravity lorries were driffing back and forth,
 """
+# test = """
+# ćontragravity lorries were driffing back and forth, scattering
+# fertilizer, mainly nitrates from Mimir or Yggarasill. There were stit
+# a good number of animal-drawn plows ahd harrows in use, however.
+#
+# As planots went, Uiler was no bargain, he thought soury.Attimes, he
+# wished he had never followed the lure of rapid promotion and
+# fantastically high pay and left the Federation regulars for the army
+#
+# at the Uiler Company, the hadn't e'd probably be a colonel, zt
+#
+# five thousand sols a year, but maybe it would be better to be a
+# middle-aged colonel cn a decent planet-Odin, with its two moons,
+# """
 #strip punctuations
 
 # test = open(args.textfile).read()  # uncomment for input command-line arg
@@ -161,6 +163,7 @@ tokens = test.replace('-', ' ').split()
 # Strip remaining punctuations
 punc = str.maketrans('', '', string.punctuation)
 tokens = [w.translate(punc) for w in tokens]
+p = Pool()
 
 for token_conv in tokens:
     best_ll = -np.Inf
@@ -171,18 +174,17 @@ for token_conv in tokens:
         print(token_conv, " (skipped - contains accented character)")
     else:
         pool_size = 2
-        result_list = ()
+        result_list = {}
 
-        p = Pool(pool_size)
-        p.apply_async(search_dict, args = (token_conv, ), callback = log_result)
-        p.close()
-        p.join()
+        p.apply_async(search_dict, args = (token_conv, ))
         print(result_list)
 
         max_value = max(result_list.values())  # maximum value
         max_key = [k for k, v in result_list.items() if v == max_value]
         print(max_key, " is max key")
-
+p.close()
+p.join()
+print(result_list)
 
 
 ## ------------- COMMAND-LINE ARGUMENT DIRECTORY --------##
