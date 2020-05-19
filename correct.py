@@ -137,27 +137,33 @@ args = parser.parse_args()
 
 error_table_fname = args.table
 
+alphaC = 0.1  # probability for capitalized
+alphaU = 0.001  # probability for upper case
 table = load_table(error_table_fname)
 corpus = load_corpus()
+corpus_lowercase = corpus - np.log(1 + alphaC + alphaU)
+corpus_lowercase.index = corpus.index.str.lower()
+corpus_capitalized = corpus - np.log(1 + alphaC + alphaU) + np.log(alphaC)
+corpus_capitalized.index = corpus.index.str.title()
+corpus_uppercase = corpus - np.log(1 + alphaC + alphaU) + np.log(alphaU)
+corpus_uppercase.index = corpus.index.str.upper()
+## other parameters, to be specified
 
 # Example test for debugging
 test = """
-ćontragravity lorries were driffing back and forth,
+ćontragravity lorries were driffing back and forth, scattering
+fertilizer, mainly nitrates from Mimir or Yggarasill. There were stit
+a good number of animal-drawn plows ahd harrows in use, however.
+
+As planots went, Uiler was no bargain, he thought soury.Attimes, he
+wished he had never followed the lure of rapid promotion and
+fantastically high pay and left the Federation regulars for the army
+
+at the Uiler Company, the hadn't e'd probably be a colonel, zt
+
+five thousand sols a year, but maybe it would be better to be a
+middle-aged colonel cn a decent planet-Odin, with its two moons,
 """
-# test = """
-# ćontragravity lorries were driffing back and forth, scattering
-# fertilizer, mainly nitrates from Mimir or Yggarasill. There were stit
-# a good number of animal-drawn plows ahd harrows in use, however.
-#
-# As planots went, Uiler was no bargain, he thought soury.Attimes, he
-# wished he had never followed the lure of rapid promotion and
-# fantastically high pay and left the Federation regulars for the army
-#
-# at the Uiler Company, the hadn't e'd probably be a colonel, zt
-#
-# five thousand sols a year, but maybe it would be better to be a
-# middle-aged colonel cn a decent planet-Odin, with its two moons,
-# """
 #strip punctuations
 
 # test = open(args.textfile).read()  # uncomment for input command-line arg
@@ -167,28 +173,49 @@ tokens = test.replace('-', ' ').split()
 # Strip remaining punctuations
 punc = str.maketrans('', '', string.punctuation)
 tokens = [w.translate(punc) for w in tokens]
+
+pool_size = 2
 p = Pool()
 
 for token_conv in tokens:
     best_ll = -np.Inf
-    o = token_conv
     print(token_conv, "->", end=" ")
 
     if not re.match('^[a-zA-Z_]+$', token_conv):   # if special character is found
         print(token_conv, " (skipped - contains accented character)")
     else:
-        pool_size = 2
-        result_list = {}
+        ## check to correct prior depending on the case
+        if token_conv.islower():
+            prior = corpus_lowercase
+        elif token_conv.istitle():
+            prior = corpus_capitalized
+        elif token_conv.isupper():
+            prior = corpus_uppercase
+        else:
+            # no clear case, let's do some heuristics
+            nupper = sum(1 for c in token_conv if c.isupper())
+            nlower = len(token_conv) - nupper
+            if nupper > nlower:
+                prior = corpus_uppercase
+            else:
+                prior = corpus_lowercase
+        # result_list = {}
+        for token_orig in prior.index:
+            l = word_based_pr(token_conv, token_orig) + prior[token_orig]
+            if l > best_ll:
+                best_ll = l
+                o = token_orig
 
-        p.apply_async(search_dict, args = (token_conv, ))
-        print(result_list)
+        # result_list.append(zip(o, best))
+        # p.apply_async(search_dict, args = (token_conv, ))
+        print(o)
 
-        max_value = max(result_list.values())  # maximum value
-        max_key = [k for k, v in result_list.items() if v == max_value]
-        print(max_key, " is max key")
+        # max_value = max(result_list.values())  # maximum value
+        # max_key = [k for k, v in result_list.items() if v == max_value]
+        # print(max_key, " is max key")
 p.close()
 p.join()
-print(result_list)
+# print(result_list)
 
 
 ## ------------- COMMAND-LINE ARGUMENT DIRECTORY --------##
