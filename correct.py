@@ -151,8 +151,8 @@ tokens = test.replace('-', ' ').split()
 # Strip remaining punctuations
 punc = str.maketrans('', '', string.punctuation)
 tokens = [w.translate(punc) for w in tokens]
-pool_size = 2
-p = Pool()
+pool_size = 4
+p = Pool(processes = pool_size)
 print(p._processes)
 
 for token_conv in tokens:
