@@ -153,6 +153,7 @@ punc = str.maketrans('', '', string.punctuation)
 tokens = [w.translate(punc) for w in tokens]
 pool_size = 2
 p = Pool()
+print(p._processes)
 
 for token_conv in tokens:
     best_ll = -np.Inf
