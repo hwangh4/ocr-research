@@ -11,6 +11,8 @@ import os
 import string
 import re
 from multiprocessing import Pool
+from functools import partial
+
 
 ## ---------- load corpus ----------
 def load_corpus():
@@ -104,22 +106,8 @@ def word_based_pr(conv, orig):
         return 0
 
 # search corpus
-def search_dict(token_conv):
-    best = -np.Inf
-    o = token_conv
-    for token_orig in corpus.index:
-        l = word_based_pr(token_conv, token_orig) + corpus[token_orig]
-        if l > best:
-            best = l
-            o = token_orig
-
-    result_list.append(zip(o, best))
-
-def log_result(result):
-    # This is called whenever foo_pool(i) returns a result.
-    # result_list is modified only by the main process, not the pool workers.
-    print(result)
-    result_list.append({result[0]: result[1]})
+def search_dict(token_conv, token_orig):
+    return word_based_pr(token_conv, token_orig) + corpus[token_orig]
 
 ## ------------- TEST THE CODE -----------------##
 # parser = argparse.ArgumentParser()
@@ -163,6 +151,7 @@ tokens = test.replace('-', ' ').split()
 # Strip remaining punctuations
 punc = str.maketrans('', '', string.punctuation)
 tokens = [w.translate(punc) for w in tokens]
+pool_size = 2
 p = Pool()
 
 for token_conv in tokens:
@@ -173,19 +162,20 @@ for token_conv in tokens:
     if not re.match('^[a-zA-Z_]+$', token_conv):   # if special character is found
         print(token_conv, " (skipped - contains accented character)")
     else:
-        pool_size = 2
         result_list = {}
 
-        p.apply_async(search_dict, args = (token_conv, ))
-        print(result_list)
+        best = -np.Inf
+        o = token_conv
+        result = p.map(partial(search_dict, token_conv), corpus.index)
+        #result = p.map(search_dict, token_conv, corpus.index)
 
-        max_value = max(result_list.values())  # maximum value
-        max_key = [k for k, v in result_list.items() if v == max_value]
-        print(max_key, " is max key")
+        i = np.argmax(result)
+        print(result[i], corpus.index[i])
+
+        # max_value = max(result_list.values())  # maximum value
+        # max_key = [k for k, v in result_list.items() if v == max_value]
+        # print(max_key, " is max key")
 p.close()
-p.join()
-print(result_list)
-
 
 ## ------------- COMMAND-LINE ARGUMENT DIRECTORY --------##
 # Run on a specific folder - uncomment when code is ready
