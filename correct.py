@@ -42,9 +42,13 @@ def load_table(fname, log=True):
     grandtotal = 0
     logtable = {}
     for letter, lettertransforms in table.items():
+        # letter: original characters,
+        # lettertransforms: dict of what they become
         transforms = {}
         total = sum(lettertransforms.values())
         for converted, count in lettertransforms.items():
+            # converted: original was seen as converted to these characters
+            # count: how many times each converted was seen
             transforms[converted] = np.log(count) - np.log(total)
         logtable[letter] = transforms
         grandtotal += total
