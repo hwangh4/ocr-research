@@ -14,7 +14,7 @@ from multiprocessing import Pool
 from functools import partial
 
 
-## ---------- load corpus ----------
+## ---------- Load corpus ---------- ##
 def load_corpus():
     """
     load word frequency corpus
@@ -28,7 +28,7 @@ def load_corpus():
     return c
 
 
-## -------------  -----------------##
+## ------------- Load table -----------------##
 
 def load_table(fname, log=True):
     """
@@ -69,12 +69,6 @@ def char_based_pr(conv, orig):
         raise ValueError("Crap, I have never seen this character in the table" + orig)
 
 
-## ------------- LOGLIKE -----------------##
-
-def loglik():
-    pass
-
-
 ## ------------- FULL WORD PROBABILITY CALCULATION -----------------##
 # Pr(w1|w2)
 # w2: Original word
@@ -102,18 +96,15 @@ def word_based_pr(conv, orig):
             word_p += char_based_pr(c, o)
         return(word_p)
     except ValueError as ve:
-        #print(ve)
         return 0
 
-# search corpus
+
+## -------- Search dictionary (used for parallelizing) --------##
 def search_dict(token_conv, token_orig):
     return word_based_pr(token_conv, token_orig) + corpus[token_orig]
 
-## ------------- TEST THE CODE -----------------##
-# parser = argparse.ArgumentParser()
-# parser.add_argument("ver")
-# args = parser.parse_args()
 
+## ------------- MAIN: TEST THE CODE -----------------##
 parser = argparse.ArgumentParser()
 parser.add_argument("table")
 # parser.add_argument("textfile")   # uncomment for input command-line arg
@@ -124,10 +115,11 @@ error_table_fname = args.table
 table = load_table(error_table_fname)
 corpus = load_corpus()
 
-# Example test for debugging
+# -----------SHORT DEBUGGING TEXT--------
 test = """
 ćontragravity lorries were driffing back and forth,
 """
+# ----------LONG DEBUGGING TEXT----------
 # test = """
 # ćontragravity lorries were driffing back and forth, scattering
 # fertilizer, mainly nitrates from Mimir or Yggarasill. There were stit
@@ -142,15 +134,18 @@ test = """
 # five thousand sols a year, but maybe it would be better to be a
 # middle-aged colonel cn a decent planet-Odin, with its two moons,
 # """
-#strip punctuations
 
+# ----------ACTUAL INPUT----------
 # test = open(args.textfile).read()  # uncomment for input command-line arg
 
+# Split hyphenated words
 tokens = test.replace('-', ' ').split()
 
 # Strip remaining punctuations
 punc = str.maketrans('', '', string.punctuation)
 tokens = [w.translate(punc) for w in tokens]
+
+# Create multiprocessing pool
 pool_size = 4
 p = Pool(processes = pool_size)
 print(p._processes)
@@ -167,23 +162,11 @@ for token_conv in tokens:
 
         best = -np.Inf
         o = token_conv
+
+        # search corpus in parallel
         result = p.map(partial(search_dict, token_conv), corpus.index)
-        #result = p.map(search_dict, token_conv, corpus.index)
 
         i = np.argmax(result)
         print(result[i], corpus.index[i])
 
-        # max_value = max(result_list.values())  # maximum value
-        # max_key = [k for k, v in result_list.items() if v == max_value]
-        # print(max_key, " is max key")
 p.close()
-
-## ------------- COMMAND-LINE ARGUMENT DIRECTORY --------##
-# Run on a specific folder - uncomment when code is ready
-# for c, o in iterate_two(sorted(os.listdir(args.directory)), 2):
-#     o = open((args.directory + "/" + o), "r").read()
-#     c = open((args.directory + "/" + c), "r").read()
-#
-#     for i, j in zip(o.split(), c.split()):
-#         print(i, j)
-#         print(word_based_pr(i, j))
