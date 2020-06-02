@@ -105,7 +105,7 @@ def word_based_pr(conv, orig):
 
 ## -------- Search dictionary (used for parallelizing) --------##
 def search_dict(token_conv, token_orig):
-    return word_based_pr(token_conv, token_orig) + corpus[token_orig]
+    return word_based_pr(token_conv, token_orig) + prior[token_orig]
 
 
 ## ------------- MAIN: TEST THE CODE -----------------##
@@ -118,8 +118,17 @@ args = parser.parse_args()
 
 error_table_fname = args.table
 
+alphaC = 0.1  # probability for capitalized
+alphaU = 0.001  # probability for upper case
 table = load_table(error_table_fname)
 corpus = load_corpus()
+corpus_lowercase = corpus - np.log(1 + alphaC + alphaU)
+corpus_lowercase.index = corpus.index.str.lower()
+corpus_capitalized = corpus - np.log(1 + alphaC + alphaU) + np.log(alphaC)
+corpus_capitalized.index = corpus.index.str.title()
+corpus_uppercase = corpus - np.log(1 + alphaC + alphaU) + np.log(alphaU)
+corpus_uppercase.index = corpus.index.str.upper()
+## other parameters, to be specified
 
 # -----------SHORT DEBUGGING TEXT--------
 # test = """
@@ -127,7 +136,7 @@ corpus = load_corpus()
 # """
 # ----------LONG DEBUGGING TEXT----------
 test = """
-ćontragravity lorries were driffing back and forth, scattering
+ćontragravity Lorries were driffing back and forth, scattering
 fertilizer, mainly nitrates from Mimir or Yggarasill. There were stit
 a good number of animal-drawn plows ahd harrows in use, however.
 
@@ -140,6 +149,7 @@ at the Uiler Company, the hadn't e'd probably be a colonel, zt
 five thousand sols a year, but maybe it would be better to be a
 middle-aged colonel cn a decent planet-Odin, with its two moons,
 """
+#strip punctuations
 
 # ----------ACTUAL INPUT----------
 # test = open(args.textfile).read()  # uncomment for input command-line arg
@@ -154,25 +164,34 @@ tokens = [w.translate(punc) for w in tokens]
 # Create multiprocessing pool
 pool_size = args.parallel
 p = Pool(processes = pool_size)
-print(p._processes)
+print("using %d" % p._processes + "-fold parallelism")
 
 for token_conv in tokens:
     best_ll = -np.Inf
-    o = token_conv
     print(token_conv, "->", end=" ")
 
     if not re.match('^[a-zA-Z_]+$', token_conv):   # if special character is found
         print(token_conv, " (skipped - contains accented character)")
     else:
-        result_list = {}
-
+        if token_conv.islower():
+            prior = corpus_lowercase
+        elif token_conv.istitle():
+            prior = corpus_capitalized
+        elif token_conv.isupper():
+            prior = corpus_uppercase
+        else:
+            # no clear case, let's do some heuristics
+            nupper = sum(1 for c in token_conv if c.isupper())
+            nlower = len(token_conv) - nupper
+            if nupper > nlower:
+                prior = corpus_uppercase
+            else:
+                prior = corpus_lowercase
         best = -np.Inf
-        o = token_conv
-
         # search corpus in parallel
-        result = p.map(partial(search_dict, token_conv), corpus.index)
+        result = p.map(partial(search_dict, token_conv, prior), prior.index)
 
         i = np.argmax(result)
-        print(result[i], corpus.index[i])
+        print(corpus.index[i], "(%1.3f" % result[i] + ")")
 
 p.close()
