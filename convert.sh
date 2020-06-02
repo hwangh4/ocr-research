@@ -13,6 +13,7 @@ SPLITLINES=50  # lines per page (LINES interferes with screen?)
 FORCE=""  # don't overwrite the folder
 POINTSIZE=12  # how bit a font to use
 MAXPAGES=1000000000  # at most process 1G pages
+FONT="Helvetica"
 
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -21,6 +22,11 @@ while [[ $# -gt 0 ]]; do
 	  echo "forcing the directory to be overwritten"
 	  FORCE=1
 	  shift
+	  ;;
+      --font)
+  	  FONT="$2"
+  	  shift # past argument
+  	  shift # past value
 	  ;;
       -h|--help)
   	  echo "usage: $0 [-l n] <inputfile.txt>"
@@ -115,6 +121,7 @@ for subfile in ${basename}-chunk-*.txt ; do
     ## Uses "annotate", intended for adding text to images
     convert -size 3000x2000 xc:white -pointsize $POINTSIZE\
 	    -fill black\
+	    -font $FONT\
 	    -annotate +$POINTSIZE+$POINTSIZE "@$subfile"\
 	    -trim -bordercolor "#FFF" -border 20 +repage\
 	    ${subbase}.jpg
