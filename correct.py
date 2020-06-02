@@ -104,9 +104,14 @@ def word_based_pr(conv, orig):
 
 
 ## -------- Search dictionary (used for parallelizing) --------##
-def search_dict(token_conv, token_orig):
-    return word_based_pr(token_conv, token_orig) + prior[token_orig]
-
+def search_dict(token_conv, case, token_orig):
+    if case == "l":
+        ll = word_based_pr(token_conv, token_orig) + corpus_lowercase[token_orig]
+    elif case == "c":
+        ll = word_based_pr(token_conv, token_orig) + corpus_capitalized[token_orig]
+    elif case == "u":
+        ll = word_based_pr(token_conv, token_orig) + corpus_uppercase[token_orig]
+    return ll
 
 ## ------------- MAIN: TEST THE CODE -----------------##
 parser = argparse.ArgumentParser()
@@ -174,24 +179,29 @@ for token_conv in tokens:
         print(token_conv, " (skipped - contains accented character)")
     else:
         if token_conv.islower():
+            case = "l"
             prior = corpus_lowercase
         elif token_conv.istitle():
+            case = "c"
             prior = corpus_capitalized
         elif token_conv.isupper():
+            case = "u"
             prior = corpus_uppercase
         else:
             # no clear case, let's do some heuristics
             nupper = sum(1 for c in token_conv if c.isupper())
             nlower = len(token_conv) - nupper
             if nupper > nlower:
+                case = "u"
                 prior = corpus_uppercase
             else:
+                case = "u"
                 prior = corpus_lowercase
         best = -np.Inf
         # search corpus in parallel
-        result = p.map(partial(search_dict, token_conv, prior), prior.index)
+        result = p.map(partial(search_dict, token_conv, case), prior.index)
 
         i = np.argmax(result)
-        print(corpus.index[i], "(%1.3f" % result[i] + ")")
+        print(prior.index[i], "(%1.3f" % result[i] + ")")
 
 p.close()
