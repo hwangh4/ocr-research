@@ -118,6 +118,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("table")
 parser.add_argument('--parallel', '-p', type=int, default=2,
                     help='Level of parallelism')
+parser.add_argument('--verbose', '-v', type=int, default=0,
+                    help='Verbosity level: larger number means more output')
 # parser.add_argument("textfile")   # uncomment for input command-line arg
 args = parser.parse_args()
 
@@ -169,7 +171,8 @@ tokens = [w.translate(punc) for w in tokens]
 # Create multiprocessing pool
 pool_size = args.parallel
 p = Pool(processes = pool_size)
-print("using %d" % p._processes + "-fold parallelism")
+if args.verbose > 2:
+    print("using %d" % p._processes + "-fold parallelism")
 
 for token_conv in tokens:
     best_ll = -np.Inf
